@@ -33,8 +33,36 @@ class AeroportoController:
 
     @aeroporto_controller.route('/aeroportos/<String: iata>', methods=['PUT'])
     def put_aeroporto(iata):
-        pass
+        aeroporto = Aeroporto.query.filter_by(codigo_iata=iata).first_or_404()
+        aeroporto_schema = AeroportoSchema()
+        data =  request.get_json()
+
+        if data.get('nome_aeroporto'):
+            aeroporto.nome_aeroporto = data['nome_aeroporto']
+        if data.get('codigo_iata'):
+            aeroporto.codigo_iata = data['codigo_iata']
+        if data.get('cidade'):
+            aeroporto.cidade = data['cidade']
+        if data.get('pais'):
+            aeroporto.pais = data['pais']
+        if data.get('latitude'):
+            aeroporto.latitude = data['latitude']
+        if data.get('longitude'):
+            aeroporto.longitude = data['longitude']
+        if data.get('altitude'):
+            aeroporto.altitude = data['altitude']
+
+        db.session.add(aeroporto)
+        db.session.commit()
+
+        update_aeroporto = aeroporto_schema.dump(aeroporto)
+        return make_response(jsonify({"Aeroporto":update_aeroporto}), 200)
+
+
 
     @aeroporto_controller.route('/aeroportos/<String: iata>', methods=['DELETE'])
     def delete_aeroporto(iata):
-        pass
+        aeroporto =  Aeroporto.query.filter_by(codigo_iata=iata).first_or_404()
+        db.session.delete(aeroporto)
+        db.session.commit()
+        return make_response(jsonify(), 204)
